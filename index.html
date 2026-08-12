@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>陶老師 退休抓周</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Iansui&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --red: #8f1d1d;
+    --red-deep: #6e1414;
+    --red-bright: #c62828;
+    --gold: #e0b959;
+    --gold-light: #f6e3ab;
+    --gold-deep: #a9812f;
+    --cream: #fff7e6;
+    --ink: #3a1210;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:
+      radial-gradient(circle at 50% -10%, rgba(255,255,255,0.10), transparent 55%),
+      linear-gradient(160deg, var(--red-bright) 0%, var(--red) 45%, var(--red-deep) 100%);
+    background-attachment:fixed;
+    font-family:'Iansui', sans-serif;
+    color:var(--cream);
+    min-height:100vh;
+    padding:44px 20px 90px;
+  }
+  .wrap{max-width:1280px;margin:0 auto;}
+
+  header{
+    text-align:center;
+    margin-bottom:44px;
+  }
+  .title{
+    font-size:clamp(38px, 6vw, 68px);
+    letter-spacing:10px;
+    color:var(--gold-light);
+    text-shadow:0 2px 0 rgba(0,0,0,0.35), 0 0 30px rgba(224,185,89,0.35);
+  }
+  .title .accent{
+    color:var(--cream);
+  }
+  .subtitle{
+    margin-top:14px;
+    font-size:clamp(15px, 2.2vw, 20px);
+    letter-spacing:3px;
+    color:var(--gold-light);
+    opacity:0.92;
+  }
+  .rule{
+    margin:20px auto 0;
+    width:min(90%, 480px);
+    height:2px;
+    background:linear-gradient(90deg, transparent, var(--gold), transparent);
+  }
+
+  .toolbar{
+    display:flex;
+    justify-content:center;
+    margin:26px 0 40px;
+  }
+  .shuffle-btn{
+    font-family:'Iansui', sans-serif;
+    font-size:18px;
+    letter-spacing:3px;
+    color:var(--ink);
+    background:linear-gradient(160deg, var(--gold-light), var(--gold));
+    border:2px solid var(--gold-deep);
+    border-radius:30px;
+    padding:12px 32px;
+    cursor:pointer;
+    box-shadow:0 6px 14px rgba(0,0,0,0.3);
+  }
+  .shuffle-btn:active{transform:translateY(1px);}
+
+  .grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fill, minmax(240px, 1fr));
+    gap:30px;
+  }
+
+  .card{
+    perspective:1600px;
+    -webkit-perspective:1600px;
+    height:330px;
+    cursor:pointer;
+  }
+  .card-inner{
+    position:relative;
+    width:100%;height:100%;
+    transition:transform 0.7s cubic-bezier(.4,.2,.2,1);
+    transform-style:preserve-3d;
+    -webkit-transform-style:preserve-3d;
+  }
+  .card.flipped .card-inner{
+    transform:rotateY(180deg);
+    -webkit-transform:rotateY(180deg);
+  }
+  .face{
+    position:absolute;inset:0;
+    -webkit-backface-visibility:hidden;
+    backface-visibility:hidden;
+    -webkit-transform-style:preserve-3d;
+    transform:rotateY(0deg) translateZ(0.1px);
+    -webkit-transform:rotateY(0deg) translateZ(0.1px);
+    border-radius:16px;
+    overflow:hidden;
+    border:3px solid var(--gold);
+    box-shadow:0 12px 24px rgba(0,0,0,0.4), inset 0 0 0 2px rgba(255,255,255,0.15);
+  }
+
+  /* ---- Front: image medallion ---- */
+  .front{
+    background:linear-gradient(160deg, #7a1414, #5c0f0f);
+    display:flex;
+    flex-direction:column;
+  }
+  .front .imgwrap{
+    position:relative;
+    flex:1;
+    overflow:hidden;
+  }
+  .front .imgwrap img{
+    width:100%;height:100%;
+    object-fit:cover;
+    display:block;
+    filter:saturate(1.05);
+  }
+  .front .imgwrap::after{
+    content:"";
+    position:absolute;inset:0;
+    background:linear-gradient(180deg, rgba(0,0,0,0) 45%, rgba(40,10,10,0.88) 100%);
+  }
+  .front .tags{
+    position:absolute;
+    left:0;right:0;bottom:10px;
+    z-index:2;
+    display:flex;
+    flex-wrap:wrap;
+    gap:6px;
+    justify-content:center;
+    padding:0 10px;
+  }
+  .front .tags span{
+    font-size:12.5px;
+    color:var(--ink);
+    background:var(--gold-light);
+    border:1px solid var(--gold-deep);
+    padding:3px 10px;
+    border-radius:14px;
+    letter-spacing:0.5px;
+  }
+  .front .hint{
+    position:absolute;
+    top:10px;left:0;right:0;
+    text-align:center;
+    z-index:2;
+    font-size:13px;
+    letter-spacing:3px;
+    color:var(--gold-light);
+    text-shadow:0 1px 3px rgba(0,0,0,0.6);
+  }
+
+  /* ---- Back: red reveal ---- */
+  .back{
+    transform:rotateY(180deg) translateZ(0.1px);
+    -webkit-transform:rotateY(180deg) translateZ(0.1px);
+    background:
+      radial-gradient(circle at 50% 20%, rgba(255,255,255,0.10), transparent 55%),
+      linear-gradient(160deg, var(--gold-light) 0%, var(--gold) 60%, var(--gold-deep) 100%);
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    text-align:center;
+    padding:22px 16px;
+    gap:10px;
+  }
+  .back .label{
+    font-size:13px;
+    letter-spacing:4px;
+    color:var(--red-deep);
+    opacity:0.85;
+  }
+  .back .who{
+    font-size:clamp(24px, 3.6vw, 30px);
+    color:var(--red-deep);
+    line-height:1.3;
+  }
+  .back .who .nick{
+    display:block;
+    font-size:16px;
+    color:var(--ink);
+    opacity:0.85;
+    margin-top:2px;
+  }
+  .back .tags{
+    display:flex;
+    flex-wrap:wrap;
+    gap:6px;
+    justify-content:center;
+    margin-top:6px;
+  }
+  .back .tags span{
+    font-size:12.5px;
+    color:var(--cream);
+    background:var(--red-deep);
+    padding:3px 10px;
+    border-radius:14px;
+  }
+  .back .cta{
+    margin-top:14px;
+    font-size:14px;
+    letter-spacing:2px;
+    color:var(--red-deep);
+    border-top:1px dashed var(--red-deep);
+    padding-top:10px;
+    width:80%;
+  }
+
+  footer{
+    text-align:center;
+    margin-top:70px;
+    color:var(--gold-light);
+    font-size:14px;
+    letter-spacing:3px;
+    opacity:0.9;
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="title"><span class="accent">退休</span>抓周</div>
+    <div class="subtitle">陶老師的下一站，由你們決定</div>
+    <div class="rule"></div>
+  </header>
+
+  <div class="toolbar">
+    <button class="shuffle-btn" id="shuffleBtn">🀄 重新洗牌</button>
+  </div>
+
+  <div class="grid" id="grid"></div>
+
+  <footer>老師抽中誰，就請誰上台！</footer>
+</div>
+
+<script>
+const DATA = [{"ts": "2026/7/30 上午 11:41:24", "name": "林浩瑋", "nickname": "浩瑋", "kw": ["想你的夜", "悠遊卡大數據", "一起搭計程車"], "msg": "恭喜陶老師榮退，感謝求學自出社會期間的照料及指點", "imgLabel": "滑雪", "imgUrl": "https://commons.wikimedia.org/wiki/Special:FilePath/Ski_freeride.jpg?width=800"}, {"ts": "2026/7/30 上午 11:45:59", "name": "陶仙鳴", "nickname": "Tommy", "kw": ["乾兒子", "陶治左", "測油筷"], "msg": "愛你一萬年", "imgLabel": "搭郵輪", "imgUrl": "https://commons.wikimedia.org/wiki/Special:FilePath/Cruise_ship_deck.jpg?width=800"}, {"ts": "2026/7/30 下午 1:05:51", "name": "鄒瑀", "nickname": "鄒瑀😂", "kw": ["嚴肅", "有幽默的先生", "沒有了"], "msg": "老師，恭喜您光榮退休！感謝您一路對我們的付出與用心，祝福您退休生活精彩豐富，身體健康。", "imgLabel": "園藝種花", "imgUrl": "https://commons.wikimedia.org/wiki/Special:FilePath/The_gardener.jpg?width=800"}, {"ts": "2026/7/30 下午 2:18:20", "name": "陳翰", "nickname": "", "kw": ["聖誕大餐主導人", "五指山", "乾兒子"], "msg": "祝福老爸退休快樂，保持身體健康享受嶄新的人生階段", "imgLabel": "瑜伽冥想", "imgUrl": "https://commons.wikimedia.org/wiki/Special:FilePath/Yoga.JPG?width=800"}, {"ts": "2026/7/30 下午 2:30:25", "name": "邱柏元", "nickname": "", "kw": ["公務員", "大數據", "輿情分析"], "msg": "感謝您多年來在教育崗位上的無私奉獻，以耐心與智慧陪伴無數學生成長，您的諄諄教誨不僅傳授了知識，更教會我們做人的道理。值此退休之際，卸下了工作的重擔，可以迎向人生新的篇章，願往後的每一天都能盡情享受悠閒自在的生活，做自己喜歡的事情，與家人共享幸福時光。", "imgLabel": "賞鳥", "imgUrl": "https://commons.wikimedia.org/wiki/Special:FilePath/Woman_looking_through_spotting_scope_mounted_on_tripod_%28cropped%29.jpg?width=800"}, {"ts": "2026/7/30 下午 4:08:12", "name": "劉祐辰", "nickname": "亞當", "kw": ["夏娃", "未成年", "未成年的夏娃"], "msg": "老師 我找到成年的夏娃了", "imgLabel": "下午茶", "imgUrl": "https://commons.wikimedia.org/wiki/Special:FilePath/The_afternoon_tea_at_hotel.jpg?width=800"}, {"ts": "2026/7/30 下午 4:09:13", "name": "鍾育欣", "nickname": "Mike", "kw": ["翠園燒烤", "全牛宴", "留學推薦信"], "msg": "祝陶老師 永保玩心 天天開心", "imgLabel": "彈鋼琴", "imgUrl": "https://commons.wikimedia.org/wiki/Special:FilePath/Elegant_man_playing_piano_%28Unsplash%29.jpg?width=800"}, {"ts": "2026/7/30 下午 4:17:44", "name": "陳亭愷", "nickname": "亭愷", "kw": ["大叔", "酒量差", "一杯倒"], "msg": "春風化雨，深銘絳帳之澤；長風破浪，再展經世之才。祈願恩師於商海揚帆，創陶朱之業，問鼎群峰之巔。", "imgLabel": "喝咖啡", "imgUrl": "https://commons.wikimedia.org/wiki/Special:FilePath/Cup_of_coffee_surrounded_by_beans.jpg?width=800"}, {"ts": "2026/7/30 下午 4:33:25", "name": "蔡易辰", "nickname": "易辰", "kw": ["碩班時被分手", "失戀了就找我喝酒", "你就在家業中慢慢學習經營之道"], "msg": "感謝老師多年來在學業與人生道路上的悉心指引，您不僅是良師，更是學生心中的燈塔。祝福老師退休生活充實自在、平安喜樂，開啟人生嶄新的美好篇章。", "imgLabel": "騎重機", "imgUrl": "https://commons.wikimedia.org/wiki/Special:FilePath/Waving_from_motorcycle_on_open_road.jpg?width=800"}, {"ts": "2026/7/30 下午 4:54:17", "name": "黃儀馨", "nickname": "Sindy", "kw": ["系學會", "眼睛比較大", "三角錐"], "msg": "陶老師退休快樂！\n每次想起大學生活，最深刻的就是我們這屆系學會和老師一起拚活動的日子。那時候老師擔任系學會主任，總是毫無保留地挺我們、幫我們拉資源，讓我們能無後顧之憂地把每個活動辦得風風光光。\n因為老師當年給我們的溫暖與凝聚力，我們這屆系學會到現在感情還是超級好，每次聚會都還會聊起當時的點點滴滴。感謝老師對我們的栽培與提攜！祝金牌外公陶老師退休生活無憂無慮、孫子抱得甜滋滋，陶家班永遠愛您！", "imgLabel": "環遊世界背包旅行", "imgUrl": "https://commons.wikimedia.org/wiki/Special:FilePath/Travel_%288274728646%29.jpg?width=800"}, {"ts": "2026/7/30 下午 10:00:11", "name": "楊莉靄", "nickname": "莉靄", "kw": ["臺鐵公司化的小螺絲釘", "華航機師的論文寫手", "聯誼找不到盡頭"], "msg": "您的恩情是涓涓流水，嘩啦嘩啦灌溉著桃花源的住民們；未來我將持續滴答滴答～將您的教誨化為行動，發揮影響力！讓職場與生活變得更好～推進善的循環～\n祝您退休愉快，幸福安康！", "imgLabel": "遛狗", "imgUrl": "https://commons.wikimedia.org/wiki/Special:FilePath/Couple_walking_dog_at_Buckingham_Fountain.jpg?width=800"}, {"ts": "2026/7/30 下午 11:24:59", "name": "林于婷", "nickname": "乾女兒", "kw": ["CTO", "每月十萬零用錢", "聰明善良美麗大方可愛"], "msg": "老師 aka 乾爹\n\n謝謝老師總是把我當自己的孩子一樣，跟我分享、給我方向。\n\n退休是新的開始，希望老師盡情去體驗、享受，過得充實自在。也要記得多運動、保重身體、開開心心呦！", "imgLabel": "打高爾夫球", "imgUrl": "https://commons.wikimedia.org/wiki/Special:FilePath/Golfer_swing.jpg?width=800"}, {"ts": "2026/7/30 下午 11:42:17", "name": "吳忠榮", "nickname": "忠榮", "kw": ["大師兄", "兩個女兒", "剛轉職"], "msg": "謝謝老師一路的提攜照顧，  祝願老師   退而不休  率性而為   海闊天空", "imgLabel": "逛美術館", "imgUrl": "https://commons.wikimedia.org/wiki/Special:FilePath/202111_Visitors_at_Shanghai_Jiushi_Art_Museum.jpg?width=800"}, {"ts": "2026/7/30 下午 11:58:45", "name": "程世杰", "nickname": "David", "kw": ["最帥事業評審", "淡淡泥煤口感", "尚未及格的女婿"], "msg": "跟老師喝的每一杯酒，有三道品嚐的層次：\n酒入口，品微醺\n酒入肚，享盡興\n酒入心，留智慧\n\n祝老師酒杯同福杯滿溢、黑髮伴青春長在、智慧隨桃李永流，我們要繼續與老師乾杯。", "imgLabel": "下棋", "imgUrl": "https://commons.wikimedia.org/wiki/Special:FilePath/Chess_in_Harvard_Square_%2890048%29.jpg?width=800"}, {"ts": "2026/7/31 下午 2:07:09", "name": "韓博倫", "nickname": "博倫", "kw": ["鐵道迷", "很愛台鐵", "外校生"], "msg": "恭喜老師即將榮退，很幸運能成為陶花源的一份子，也謝謝老師在我們這些莘莘學子身上所傾授的一切，讓我們能夠具備完整的技能，並憑藉著這些結實的技能去探尋屬於我們的未來。祝福老師退休生活愉快，身體永遠健康！", "imgLabel": "跳舞", "imgUrl": "https://commons.wikimedia.org/wiki/Special:FilePath/A_couple_dancing_perreo.jpg?width=800"}, {"ts": "2026/8/1 上午 3:36:58", "name": "武鈞婷", "nickname": "鈞婷", "kw": ["首爾", "九州", "墾丁"], "msg": "謝謝老師從大學一路至研究所的支持與鼓勵，沒有老師一路上的幫忙，我想現在的我可能還在苦惱下學期該怎麼辦。祝福老師退休後的生活可以一切順利，平平安安、健健康康的快樂過每一天！", "imgLabel": "烹飪美食", "imgUrl": "https://commons.wikimedia.org/wiki/Special:FilePath/Kitchen%2C_cooking_pot_Fortepan_878.jpg?width=800"}, {"ts": "2026/8/3 下午 8:41:30", "name": "郭銘倫", "nickname": "好像也沒有什麼比較特別的暱稱，老師都叫名字", "kw": ["老中青三代公車迷中的其中一個", "統戰大陸媳婦，革命尚未成功", "去上海交換結果延畢一年"], "msg": "恭喜老師總算退休啦，老師無疑是個被教授職務耽誤的大BOSS，老師是不是正在籌劃下一個讓大家大吃一驚的新目標呢？只要老師有需要，桃家子弟兵就等老師您一聲令下，肯定全員歸隊！", "imgLabel": "打太極拳", "imgUrl": "https://commons.wikimedia.org/wiki/Special:FilePath/20091004_tai_chi_Hong_Kong_Kowloon_6887.jpg?width=800"}, {"ts": "2026/8/5 上午 10:16:00", "name": "陳佑昕", "nickname": "佑昕/柚子", "kw": ["幸福感", "心理系", "無障礙"], "msg": "恭喜您走完執教的生涯，不知道長年執教的您，這一刻的心境究竟如何呢？我很幸運能夠在學業當中能碰到您、並且得到您的教導，也讓我有幸進入陶家班。我想，能為您做的或許不多，雖然不一定有辦法成為您的驕傲，但求盡量惕勵自己不辱名聲。也期望您在未來的歲月裡，不只是作為教師、更是以人生的前輩的角色，為我們這些後輩指點迷津。", "imgLabel": "比基尼辣妹", "imgUrl": "https://commons.wikimedia.org/wiki/Special:FilePath/Woman_at_the_beach_in_a_blue_bikini.JPG?width=800"}, {"ts": "2026/8/5 上午 11:28:44", "name": "樂宸豪", "nickname": "", "kw": ["姓氏很特別", "論文的指導老師除了陶老師之外，還有另外一位老師共同指導", "曾經修陶老師的一堂課雖然過了，但選擇修了第二次"], "msg": "恭喜老師退休了，萬分感謝老師一直以來的悉心指導，讓迷糊的我能順利畢業外，還能夠發表期刊。祝福老師的退休生活一切順心。", "imgLabel": "釣魚", "imgUrl": "https://commons.wikimedia.org/wiki/Special:FilePath/Old_man_fishing.jpg?width=800"}, {"ts": "2026/8/6 下午 9:32:43", "name": "洪敏琛", "nickname": "敏琛", "kw": ["台鐵", "逢甲", "老學長"], "msg": "謝謝老師過去的提攜與照顧，祝福您未來的每一天都充滿歡笑與溫暖！", "imgLabel": "泡溫泉", "imgUrl": "https://commons.wikimedia.org/wiki/Special:FilePath/Outdoor_hot_spring_bath_in_Nigorigo_Onsen.jpg?width=800"}, {"ts": "2026/8/6 下午 10:04:58", "name": "林孟潔", "nickname": "", "kw": ["最佳導演獎", "摩天輪", "天高地厚"], "msg": "老師 aka 桃花源村長，\n\n很幸運可以在大學、研究所時期遇到老師，更成為桃花源村民一員。\n\n您說過，我們要會做人、會做事，更要會玩！\n所以，求學、工作都精采多姿，回憶滿溢！\n\n恭喜老師榮退，謝謝這一路來的提攜與照顧，\n祝福老師這個全新的開始，可以健康、簡單、自在，享受生活！\n\n當然，哪天要幹大事，村民們也隨時Ready 好群起響應，\n再由村長您引領我們寫下更多屬於桃花源的瘋狂故事吧！", "imgLabel": "含飴弄孫", "imgUrl": "https://commons.wikimedia.org/wiki/Special:FilePath/Grandfather_and_grandson.jpg?width=800"}, {"ts": "2026/8/7 上午 8:36:42", "name": "馬婕鳳", "nickname": "馬姐", "kw": ["(應該是)當時班上年紀最小", "班對修成正果", "二寶媽"], "msg": "謝謝老師，當年在我申請轉系、對未來還有些迷惘的時候，在面試中給了我肯定與機會，讓我順利錄取。現在回頭看，那次的決定幾乎改變了我對未來的想像與人生規劃，畢業時，老師也不吝嗇地給予工作上的推薦與關心，這些我都一直記在心裡，真的非常感謝老師☺️\n很幸運大學時期遇見老師，也謝謝老師曾經給我的肯定與照顧，如今您要退休了，祝福您退休生活自在順心、平安健康！退休快樂 ❤️", "imgLabel": "看夕陽", "imgUrl": "https://commons.wikimedia.org/wiki/Special:FilePath/Man_watching_beautiful_sunset.jpg?width=800"}, {"ts": "2026/8/7 上午 9:46:44", "name": "簡睿志", "nickname": "簡睿", "kw": ["雙魚座", "雙寶爸", "創業者"], "msg": "恭喜老師圓滿畢業！今天特別為您準備「退休抓周」，不管是抓到機票出國玩，還是耳塞享受清靜，都祝您抓滿自由與健康！\n最感謝您擁有「伯樂慧眼」，在我們還是朽木時就看見每個人的潛力，視每位學生都可鑿成玉。謝謝您的用心，祝您退休生活精彩萬分！", "imgLabel": "攝影", "imgUrl": "https://commons.wikimedia.org/wiki/Special:FilePath/Photographer.jpg?width=800"}, {"ts": "2026/8/7 上午 11:50:18", "name": "陳蕙暄", "nickname": "Erica(好像吧）", "kw": ["標竿組", "不務正業(運輸業）", "長官很多的場合"], "msg": "謝謝老師從大學到畢業後一路以來的照顧，學生時期就很喜歡上陶老師的課，幽默有趣又有料，事業那學門也深深影響我。\n畢業後老師知道我當主持人，也推薦我幫系上或協會主持，甚至連自己女兒的婚禮我都很榮幸能參與到，真的很感謝老師的信任和鼓勵！\n能遇到一位對學生如此用心和照顧的老師是我的福氣～\n祝福老師在未來的退休生涯，一樣精彩萬分、身體健康！❤️", "imgLabel": "抽煙斗", "imgUrl": "https://commons.wikimedia.org/wiki/Special:FilePath/Garden%2C_man%2C_hat%2C_smoking%2C_pipe%2C_wicker_chair%2C_reading%2C_newspaper_Fortepan_2755.jpg?width=800"}, {"ts": "2026/8/7 下午 9:09:15", "name": "張潘立昂", "nickname": "張潘", "kw": ["孤鳥", "事業評審", "外商"], "msg": "祝福老師退休！老師退休後，勢必是另一個事業高峰，我先提前跟老師卡個位\n不過以後就可憐了事業管理的學生，大概各個學到的都是失業不是創業😂", "imgLabel": "品酒莊園", "imgUrl": "https://commons.wikimedia.org/wiki/Special:FilePath/Vineyard_and_winery_in_Napa_Valley.jpg?width=800"}, {"ts": "2026/8/9 上午 10:56:20", "name": "范傑智", "nickname": "", "kw": ["囉嗦", "嚴格", "仔細"], "msg": "春風化雨數十載，辛苦了，如今正式迎來專屬自己的時光，祝老師退休快樂，好好享受遊歷四方的美好人生。", "imgLabel": "登山健行", "imgUrl": "https://commons.wikimedia.org/wiki/Special:FilePath/Hiking_on_Appalachian_Trail.jpg?width=800"}, {"ts": "2026/8/9 上午 11:10:13", "name": "徐偉豪", "nickname": "", "kw": ["鐵道愛好者", "鐵路工作者", "有點脫線~"], "msg": "很榮幸可以做老師的學生，跟著老師學習到很多東西，也祝福老師退休愉快，開展人生第二春。", "imgLabel": "騎腳踏車環島", "imgUrl": "https://commons.wikimedia.org/wiki/Special:FilePath/Loaded_touring_bicycle.JPG?width=800"}, {"ts": "2026/8/9 上午 11:25:43", "name": "江品瑩", "nickname": "品瑩", "kw": ["富春國小", "富春國小", "富春國小"], "msg": "恭承教誨展鴻圖，賀語溫馨心意鋪。\n榮木成蔭桃李滿，退休勝景悠然赴。\n\n恭喜老師步入人生新的階段，願老師永遠開心愉快🥳  （恭～賀～榮～退）", "imgLabel": "打麻將", "imgUrl": "https://commons.wikimedia.org/wiki/Special:FilePath/MahjongSetup.JPG?width=800"}, {"ts": "2026/8/9 下午 12:19:45", "name": "周采潔", "nickname": "采潔", "kw": ["秘書", "不婚", "沉穩"], "msg": "恭賀榮退！從容悠然度歲月，把熱愛留給人生😊", "imgLabel": "露營野餐", "imgUrl": "https://commons.wikimedia.org/wiki/Special:FilePath/Camping_tent_grass.jpg?width=800"}, {"ts": "2026/8/10 上午 1:13:36", "name": "張悅朗", "nickname": "悅朗", "kw": ["2020年畢業", "海闊天空", "月老"], "msg": "桃李滿天下，張翼助高飛。媒合屬於我的海闊天空", "imgLabel": "閱讀看書", "imgUrl": "https://commons.wikimedia.org/wiki/Special:FilePath/Woman_reading_a_book_on_lap_%28Unsplash%29.jpg?width=800"}, {"ts": "2026/8/10 下午 5:31:18", "name": "傅思凱", "nickname": "Full Scan", "kw": ["姓不常見，非百家姓", "喝咖啡也喝紅酒", "男性"], "msg": "謝謝老師\n在學習的知識如沐春風\n出社會再遇如久旱甘霖", "imgLabel": "海邊度假", "imgUrl": "https://commons.wikimedia.org/wiki/Special:FilePath/An_old_couple_relaxing_on_the_beach.jpg?width=800"}, {"ts": "2026/8/12 下午 1:39:01", "name": "陳永耀", "nickname": "永耀", "kw": ["德語", "公路競賽", "姊姊跟弟弟都給老師教過"], "msg": "在淡江的五年歲月，或許是人生重要的轉捩點，讓我有機會完成高等教育的求學歷程，也在運輸領域累積了更深厚的知識與視野。\n\n陶老師不僅在指導上，待人處事更是以身作則，讓我體會做人處事的態度。無論是在專業上的嚴謹、待人接物的誠懇，或是生活中的幽默與智慧，都讓我受益良多。老師總是用不嚴厲卻充滿溫度的方式提醒與鼓勵學生。\n\n適逢老師榮退，謹此誠摯感謝。感謝老師多年來對我的教誨與照顧。衷心祝福老師退休生活充實愉快、身體健康、平安喜樂，未來能自在享受人生繼續以豐富的人生智慧啟發大家。", "imgLabel": "喝紅酒", "imgUrl": "https://commons.wikimedia.org/wiki/Special:FilePath/Glass_of_red_wine.jpg?width=800"}];
+
+function escapeHtml(str){
+  if(!str) return '';
+  return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+function shuffle(arr){
+  const a = arr.slice();
+  for(let i = a.length - 1; i > 0; i--){
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+const grid = document.getElementById('grid');
+
+function render(){
+  grid.innerHTML = '';
+  const order = shuffle(DATA);
+  order.forEach((d) => {
+    const card = document.createElement('div');
+    card.className = 'card';
+
+    const tagsHtml = d.kw.filter(k => k && k.trim()).map(k => `<span>#${escapeHtml(k)}</span>`).join('');
+    const nickHtml = d.nickname && d.nickname.trim() ? `<span class="nick">(${escapeHtml(d.nickname)})</span>` : '';
+
+    card.innerHTML = `
+      <div class="card-inner">
+        <div class="face front">
+          <div class="hint">✦ 抓一張 ✦</div>
+          <div class="imgwrap">
+            <img src="${d.imgUrl}" alt="${escapeHtml(d.imgLabel)}" loading="lazy">
+            <div class="tags">${tagsHtml}</div>
+          </div>
+        </div>
+        <div class="face back">
+          <div class="label">是你嗎</div>
+          <p class="who">${escapeHtml(d.name)}${nickHtml}</p>
+          <div class="tags">${tagsHtml}</div>
+          <div class="cta">請主持人邀請上台！</div>
+        </div>
+      </div>
+    `;
+
+    card.addEventListener('click', () => card.classList.toggle('flipped'));
+    grid.appendChild(card);
+  });
+}
+
+render();
+document.getElementById('shuffleBtn').addEventListener('click', render);
+</script>
+</body>
+</html>
